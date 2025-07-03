@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MediaTrack</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="site-header">
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="flash-container" id="flash-container">
+      {% for message in messages %}
+        <div class="flash-message">{{ message }}</div>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => {
+        const flash = document.getElementById('flash-container');
+        if (flash) {
+          flash.style.opacity = '0';
+          setTimeout(() => flash.remove(), 500); // Remove from DOM
+        }
+      }, 3000); // 3 seconds
+    </script>
+  {% endif %}
+{% endwith %}
+
+
+    <div class="container logo-container">
+      <h1 class="logo">
+  <a href="/" class="logo-link">📚 MediaTrack</a>
+</h1>
+      <p class="tagline">Track. Organize. Enjoy.</p>
+      {% if session.get('user') %}
+  <a href="/logout">Logout</a>
+{% else %}
+  <a href="/login">Login</a>
+  <a href="/signup">Sign Up</a>
+{% endif %}
+
+    </div>
+  </header>
+
+  {% block content %}
+  {% endblock %}
+</body>
+</html>

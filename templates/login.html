@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container form-wrapper">
+  <h1 class="main-title">Login</h1>
+  <p class="subtitle">Enter your credentials to access MediaTrack.</p>
+
+  <form method="POST" class="form-layout">
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input type="text" name="username" required>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" name="password" required>
+    </div>
+
+    <div class="button-container">
+      <button class="button" type="submit">🔐 Login</button>
+      <a class="button" href="/">🏠 Back to Home</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

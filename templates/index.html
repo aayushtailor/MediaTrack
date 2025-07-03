@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="main-title">Your Personal Media Tracker 🎮📚</h1>
+    <p class="subtitle">
+      Easily log and manage your favorite books, movies, anime, and games — all in one place.
+    </p>
+
+    <div class="button-container">
+      <a class="button" href="/add">➕ Add New Entry</a>
+      <a class="button" href="/view">📋 View All Entries</a>
+    </div>
+
+    <hr style="margin: 40px 0;">
+
+    <h2 style="text-align: center; margin-bottom: 20px;">What You Can Do</h2>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>📚 Track Anything</h3>
+        <p>Log books, movies, anime, or games with title, genre, status, and rating.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🔍 Organized Lists</h3>
+        <p>View all your entries in a clean table and filter them easily.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🎯 Stay Focused</h3>
+        <p>Keep your media life organized without distractions or clutter.</p>
+      </div>
+    </div>
+  </div>
+{% endblock %}
