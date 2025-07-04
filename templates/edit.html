@@ -1,50 +1,39 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container form-wrapper">
-  <h1 class="main-title">Edit Entry</h1>
-  <p class="subtitle">Update the details below and save your changes.</p>
 
-  <form method="POST" class="form-layout">
-    <div class="form-group">
-      <label for="type">Type:</label>
-      <select name="type" required>
-        <option value="Book" {% if item['type'] == 'Book' %}selected{% endif %}>Book</option>
-        <option value="Movie" {% if item['type'] == 'Movie' %}selected{% endif %}>Movie</option>
-        <option value="Anime" {% if item['type'] == 'Anime' %}selected{% endif %}>Anime</option>
-        <option value="Game" {% if item['type'] == 'Game' %}selected{% endif %}>Game</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="title">Title:</label>
-      <input type="text" name="title" value="{{ item['title'] }}" required>
-    </div>
-
-    <div class="form-group">
-      <label for="genre">Genre:</label>
-      <input type="text" name="genre" value="{{ item['genre'] }}" required>
-    </div>
-
-    <div class="form-group">
-      <label for="status">Status:</label>
-      <select name="status" required>
-        <option value="Planned" {% if item['status'] == 'Planned' %}selected{% endif %}>Planned</option>
-        <option value="In Progress" {% if item['status'] == 'In Progress' %}selected{% endif %}>In Progress</option>
-        <option value="Completed" {% if item['status'] == 'Completed' %}selected{% endif %}>Completed</option>
-        <option value="Dropped" {% if item['status'] == 'Dropped' %}selected{% endif %}>Dropped</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="rating">Rating (out of 10):</label>
-      <input type="number" name="rating" min="0" max="10" value="{{ item['rating'] or '' }}">
-    </div>
-
-    <div class="button-container">
-      <button class="button" type="submit">💾 Update Entry</button>
-      <a class="button" href="/view">🔙 Cancel</a>
-    </div>
-  </form>
+<div class="container"> <h2 class="main-title">Edit Entry ✏️</h2> 
+  <p class="subtitle">Update the entry below and click "Update Entry" to save changes.</p> 
+  <form method="POST" class="form-layout"> <div class="form-group"> <label for="type">Type:</label> <select name="type" required> <option value="">-- Select --</option> <option value="Book" {% if item['type'] == 'Book' %}selected{% endif %}>Book</option> <option value="Movie" {% if item['type'] == 'Movie' %}selected{% endif %}>Movie</option> <option value="Anime" {% if item['type'] == 'Anime' %}selected{% endif %}>Anime</option> <option value="Game" {% if item['type'] == 'Game' %}selected{% endif %}>Game</option> </select> </div>
+<div class="form-group">
+  <label for="title">Title:</label>
+  <input type="text" name="title" value="{{ item['title'] }}" required>
 </div>
-{% endblock %}
+
+<div class="form-group">
+  <label for="genre">Genre:</label>
+  <input type="text" name="genre" value="{{ item['genre'] }}" required>
+</div>
+
+<div class="form-group">
+  <label for="status">Status:</label>
+  <select name="status" required>
+    <option value="">-- Select --</option>
+    <option value="Planned" {% if item['status'] == 'Planned' %}selected{% endif %}>Planned</option>
+    <option value="In Progress" {% if item['status'] == 'In Progress' %}selected{% endif %}>In Progress</option>
+    <option value="Completed" {% if item['status'] == 'Completed' %}selected{% endif %}>Completed</option>
+    <option value="On Hold" {% if item['status'] == 'On Hold' %}selected{% endif %}>On Hold</option>
+    <option value="Dropped" {% if item['status'] == 'Dropped' %}selected{% endif %}>Dropped</option>
+  </select>
+</div>
+
+<div class="form-group">
+  <label for="rating">Rating (out of 10):</label>
+  <input type="number" name="rating" value="{{ item['rating'] or '' }}" min="0" max="10">
+</div>
+
+<div class="button-container">
+  <button type="submit" class="button-primary">💾 Update Entry</button>
+  <a href="{{ url_for('view_items') }}" class="button-secondary">❌ Cancel</a>
+</div>
+</form> </div> {% endblock %}

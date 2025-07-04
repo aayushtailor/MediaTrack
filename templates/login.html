@@ -1,25 +1,23 @@
+
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="container form-wrapper">
-  <h1 class="main-title">Login</h1>
-  <p class="subtitle">Enter your credentials to access MediaTrack.</p>
 
-  <form method="POST" class="form-layout">
-    <div class="form-group">
-      <label for="username">Username:</label>
-      <input type="text" name="username" required>
-    </div>
+<div class="container-sm"> <h2 class="form-title">Log In</h2>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="flash-message">{{ messages[0] }}</div>
+{% endif %}
+{% endwith %}
 
-    <div class="form-group">
-      <label for="password">Password:</label>
-      <input type="password" name="password" required>
-    </div>
+<form method="POST" class="form-box"> <div class="form-group"> <label for="username">Username:</label> <input type="text" name="username" id="username" required> </div>
 
-    <div class="button-container">
-      <button class="button" type="submit">🔐 Login</button>
-      <a class="button" href="/">🏠 Back to Home</a>
-    </div>
-  </form>
+<div class="form-group">
+  <label for="password">Password:</label>
+  <input type="password" name="password" id="password" required>
 </div>
-{% endblock %}
+
+<div class="form-buttons">
+  <button type="submit" class="button primary">🔐 Log In</button>
+  <a href="/signup" class="button secondary">Don’t have an account? Sign Up</a>
+</div>
+</form> </div> {% endblock %}

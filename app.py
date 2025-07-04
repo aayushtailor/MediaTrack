@@ -143,6 +143,7 @@ def add_item():
 
     return render_template('add.html')
 
+
 @app.route('/view')
 @login_required
 def view_items():
@@ -211,3 +212,8 @@ def delete_item(id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+from waitress import serve
+
+if __name__ == '__main__':
+    serve(app, host='0.0.0.0', port=8080)
