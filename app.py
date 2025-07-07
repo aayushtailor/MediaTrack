@@ -211,6 +211,7 @@ def delete_item(id):
     return redirect(url_for('view_items'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
+
 
 
