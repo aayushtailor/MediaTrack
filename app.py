@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import sqlite3
 from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -21,7 +22,7 @@ def init_db():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
 
-    # Create users table
+    # Users table
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,7 +31,7 @@ def init_db():
         )
     ''')
 
-    # Create items table linked to users
+    # Items table linked to users
     c.execute('''
         CREATE TABLE IF NOT EXISTS items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,7 +74,8 @@ def signup():
             flash('Username already taken. Please choose another.')
             return redirect(url_for('signup'))
 
-        c.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
+        hashed_password = generate_password_hash(password)
+        c.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, hashed_password))
         conn.commit()
         conn.close()
         flash('Account created! You can now log in.')
@@ -89,11 +91,11 @@ def login():
 
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
-        c.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
+        c.execute('SELECT * FROM users WHERE username = ?', (username,))
         user = c.fetchone()
         conn.close()
 
-        if user:
+        if user and check_password_hash(user[2], password):
             session['user'] = username
             session['user_id'] = user[0]
             flash('Logged in successfully!')
@@ -142,7 +144,6 @@ def add_item():
         return redirect(url_for('view_items'))
 
     return render_template('add.html')
-
 
 @app.route('/view')
 @login_required
@@ -209,9 +210,3 @@ def delete_item(id):
     conn.close()
     flash('Entry deleted successfully!')
     return redirect(url_for('view_items'))
-
-if __name__ == '__main__':
-    app.run()
-
-
-
