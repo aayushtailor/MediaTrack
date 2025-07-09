@@ -8,7 +8,8 @@ app.secret_key = 'your_secret_key_here'
 app.config['SESSION_TYPE'] = 'filesystem'
 
 # Enable debug logging to a file
-logging.basicConfig(filename='error.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s')
+logging.basicConfig(filename='error.log', level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s: %(message)s')
 
 # Login required decorator
 def login_required(f):
@@ -52,7 +53,7 @@ def init_db():
         conn.commit()
         conn.close()
     except Exception as e:
-        logging.error(f"Error initializing database: {e}")
+        logging.error(f"Database initialization failed: {e}")
 
 init_db()
 
@@ -70,26 +71,21 @@ def signup():
             flash('Please fill all fields.')
             return redirect(url_for('signup'))
 
-        try:
-            conn = sqlite3.connect('database.db')
-            c = conn.cursor()
-            c.execute('SELECT * FROM users WHERE username = ?', (username,))
-            existing_user = c.fetchone()
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('SELECT * FROM users WHERE username = ?', (username,))
+        existing_user = c.fetchone()
 
-            if existing_user:
-                conn.close()
-                flash('Username already taken. Please choose another.')
-                return redirect(url_for('signup'))
-
-            c.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
-            conn.commit()
+        if existing_user:
             conn.close()
-            flash('Account created! You can now log in.')
-            return redirect(url_for('login'))
-        except Exception as e:
-            logging.error(f"Signup error: {e}")
-            flash('Internal server error.')
+            flash('Username already taken. Please choose another.')
             return redirect(url_for('signup'))
+
+        c.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
+        conn.commit()
+        conn.close()
+        flash('Account created! You can now log in.')
+        return redirect(url_for('login'))
 
     return render_template('signup.html')
 
@@ -99,24 +95,19 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        try:
-            conn = sqlite3.connect('database.db')
-            c = conn.cursor()
-            c.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
-            user = c.fetchone()
-            conn.close()
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
+        user = c.fetchone()
+        conn.close()
 
-            if user:
-                session['user'] = username
-                session['user_id'] = user[0]
-                flash('Logged in successfully!')
-                return redirect(url_for('home'))
-            else:
-                flash('Invalid credentials. Please try again.')
-                return redirect(url_for('login'))
-        except Exception as e:
-            logging.error(f"Login error: {e}")
-            flash('Internal server error.')
+        if user:
+            session['user'] = username
+            session['user_id'] = user[0]
+            flash('Logged in successfully!')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid credentials. Please try again.')
             return redirect(url_for('login'))
 
     return render_template('login.html')
@@ -147,21 +138,16 @@ def add_item():
 
         user_id = session.get('user_id')
 
-        try:
-            conn = sqlite3.connect('database.db')
-            c = conn.cursor()
-            c.execute('''
-                INSERT INTO items (user_id, type, title, genre, status, rating)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (user_id, type, title, genre, status, rating))
-            conn.commit()
-            conn.close()
-            flash('Entry added successfully!')
-            return redirect(url_for('view_items'))
-        except Exception as e:
-            logging.error(f"Add entry error: {e}")
-            flash('Internal server error.')
-            return redirect(url_for('add_item'))
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO items (user_id, type, title, genre, status, rating)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (user_id, type, title, genre, status, rating))
+        conn.commit()
+        conn.close()
+        flash('Entry added successfully!')
+        return redirect(url_for('view_items'))
 
     return render_template('add.html')
 
@@ -171,64 +157,54 @@ def view_items():
     query = request.args.get('q', '').strip()
     user_id = session.get('user_id')
 
-    try:
-        conn = sqlite3.connect('database.db')
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
 
-        if query:
-            search_term = f"%{query}%"
-            c.execute('''
-                SELECT * FROM items
-                WHERE user_id = ? AND (title LIKE ? OR type LIKE ? OR genre LIKE ?)
-                ORDER BY id DESC
-            ''', (user_id, search_term, search_term, search_term))
-        else:
-            c.execute('SELECT * FROM items WHERE user_id = ? ORDER BY id DESC', (user_id,))
+    if query:
+        search_term = f"%{query}%"
+        c.execute('''
+            SELECT * FROM items
+            WHERE user_id = ? AND (title LIKE ? OR type LIKE ? OR genre LIKE ?)
+            ORDER BY id DESC
+        ''', (user_id, search_term, search_term, search_term))
+    else:
+        c.execute('SELECT * FROM items WHERE user_id = ? ORDER BY id DESC', (user_id,))
 
-        items = c.fetchall()
-        conn.close()
-        return render_template('view.html', items=items)
-    except Exception as e:
-        logging.error(f"View items error: {e}")
-        flash('Internal server error.')
-        return redirect(url_for('home'))
+    items = c.fetchall()
+    conn.close()
+    return render_template('view.html', items=items)
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_item(id):
-    try:
-        conn = sqlite3.connect('database.db')
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
 
-        if request.method == 'POST':
-            type = request.form.get('type')
-            title = request.form.get('title')
-            genre = request.form.get('genre')
-            status = request.form.get('status')
-            rating = request.form.get('rating')
-            if rating == '':
-                rating = None
+    if request.method == 'POST':
+        type = request.form.get('type')
+        title = request.form.get('title')
+        genre = request.form.get('genre')
+        status = request.form.get('status')
+        rating = request.form.get('rating')
+        if rating == '':
+            rating = None
 
-            c.execute('''
-                UPDATE items
-                SET type = ?, title = ?, genre = ?, status = ?, rating = ?
-                WHERE id = ?
-            ''', (type, title, genre, status, rating, id))
-            conn.commit()
-            conn.close()
-            flash('Entry updated successfully!')
-            return redirect(url_for('view_items'))
-
-        c.execute('SELECT * FROM items WHERE id = ?', (id,))
-        item = c.fetchone()
+        c.execute('''
+            UPDATE items
+            SET type = ?, title = ?, genre = ?, status = ?, rating = ?
+            WHERE id = ?
+        ''', (type, title, genre, status, rating, id))
+        conn.commit()
         conn.close()
-        return render_template('edit.html', item=item)
-    except Exception as e:
-        logging.error(f"Edit item error: {e}")
-        flash('Internal server error.')
+        flash('Entry updated successfully!')
         return redirect(url_for('view_items'))
+
+    c.execute('SELECT * FROM items WHERE id = ?', (id,))
+    item = c.fetchone()
+    conn.close()
+    return render_template('edit.html', item=item)
 
 @app.route('/delete/<int:id>')
 @login_required
@@ -246,4 +222,4 @@ def delete_item(id):
     return redirect(url_for('view_items'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
